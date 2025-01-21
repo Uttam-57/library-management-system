@@ -1,0 +1,67 @@
+CREATE DATABASE library_db;
+
+USE library_db;
+
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    status ENUM('Available', 'Borrowed') DEFAULT 'Available',
+    borrowed_by INT,
+    FOREIGN KEY (borrowed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    membership_end TIMESTAMP NOT NULL
+);
+
+CREATE TABLE transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    book_id INT,
+    action ENUM('Borrow', 'Return'),
+    timestamp TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (book_id) REFERENCES books(id)
+);
+
+//2
+
+CREATE DATABASE library_db;
+
+USE library_db;
+
+-- Create the 'users' table first as it is referenced by the 'books' and 'transactions' tables
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    membership_end TIMESTAMP NOT NULL
+);
+
+-- Create the 'books' table after 'users' as it references the 'users' table
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    status ENUM('Available', 'Borrowed') DEFAULT 'Available',
+    borrowed_by INT,
+    FOREIGN KEY (borrowed_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- Create the 'transactions' table last as it references both 'users' and 'books' tables
+CREATE TABLE transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    book_id INT,
+    action ENUM('Borrow', 'Return'),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Ensure foreign key checks are enabled
+SET foreign_key_checks = 1;
